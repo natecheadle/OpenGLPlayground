@@ -9,6 +9,6 @@ add_compile_definitions(PROJECT_TEXTURES_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/T
 add_subdirectory(OpenGLWrapper)
 
 add_executable(${PROJECT_NAME} "main.cpp")
+find_package(glm CONFIG REQUIRED)
 
-
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGLShader OpenGLTexture)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGLShader OpenGLTexture glm::glm)
