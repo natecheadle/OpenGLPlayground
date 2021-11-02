@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(OpenGLLib)
+project(OpenGLShader)
 
 add_library(${PROJECT_NAME} STATIC
         "src/Shader.cpp"

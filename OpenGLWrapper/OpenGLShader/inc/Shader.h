@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace OpenGL {
+namespace OpenGLWrapper {
     class Shader {
       public:
         enum class Type

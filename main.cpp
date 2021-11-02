@@ -1,22 +1,24 @@
 #include <FragmentShader.h>
 #include <ShaderProgram.h>
+#include <Texture.h>
 #include <VertexShader.h>
 #include <glad/glad.h>
+#include <stb_image.h>
 
 #include <GLFW/glfw3.h>
 
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 int main(int argc, char* argv[])
 {
-    if(!glfwInit())
+    if (!glfwInit())
     {
         std::cout << "Failed to initialize GLFW." << std::endl;
         return -1;
@@ -24,8 +26,8 @@ int main(int argc, char* argv[])
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint (GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
@@ -47,49 +49,58 @@ int main(int argc, char* argv[])
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-        // positions         // colors
-        0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        0.0f,
-        0.0f, // bottom right
-        -0.5f,
-        -0.5f,
-        0.0f,
-        0.0f,
-        1.0f,
-        0.0f, // bottom left
-        0.0f,
-        0.5f,
-        0.0f,
-        0.0f,
-        0.0f,
-        1.0f // top
+        // positions          // colors           // texture coords
+        0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
+        0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+        -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f  // top left
     };
 
-    OpenGL::FragmentShader fragShader("FragmentShader.frag");
-    OpenGL::VertexShader   vertexShader("VertexShader.vert");
+    unsigned int indices[] = {
+        0,
+        1,
+        3, // first triangle
+        1,
+        2,
+        3 // second triangle
+    };
+
+    OpenGLWrapper::FragmentShader fragShader("FragmentShader.frag");
+    OpenGLWrapper::VertexShader   vertexShader("VertexShader.vert");
     assert(fragShader.IsValid() && vertexShader.IsValid());
 
-    OpenGL::ShaderProgram shaderProgram(&fragShader, &vertexShader);
+    OpenGLWrapper::ShaderProgram shaderProgram(&fragShader, &vertexShader);
     assert(shaderProgram.IsValid());
 
-    unsigned int VBO, VAO;
+    OpenGLWrapper::Texture wallTexture("wall.jpg", OpenGLWrapper::Texture::TextureUnit::Texture0);
+    OpenGLWrapper::Texture faceTexture("awesomeface.png", OpenGLWrapper::Texture::TextureUnit::Texture1);
+
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glGenBuffers(1, &EBO);
+
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    shaderProgram.Use();
+    shaderProgram.SetShaderVar("texture1", 0);
+    shaderProgram.SetShaderVar("texture2", 1);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -98,16 +109,16 @@ int main(int argc, char* argv[])
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        wallTexture.Activate();
+        wallTexture.Bind();
+
+        faceTexture.Activate();
+        faceTexture.Bind();
+
         shaderProgram.Use();
 
-        // update the uniform color
-        float timeValue  = glfwGetTime();
-        float greenValue = sin(timeValue) / 2.0f + 0.5f;
-        shaderProgram.SetShaderVar("ourColor", greenValue);
-
-        // now render the triangle
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);

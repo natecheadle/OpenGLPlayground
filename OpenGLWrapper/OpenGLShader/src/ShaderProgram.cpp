@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace OpenGL {
+namespace OpenGLWrapper {
     ShaderProgram::ShaderProgram(const Shader* pFragmentShader, const Shader* pVertexShader)
         : m_ID(glCreateProgram())
         , m_pFragmentShader(pFragmentShader)

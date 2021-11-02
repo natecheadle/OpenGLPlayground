@@ -2,7 +2,7 @@
 
 #include "Shader.h"
 
-namespace OpenGL {
+namespace OpenGLWrapper {
     class ShaderProgram {
         const unsigned int m_ID;
         const Shader*      m_pFragmentShader;
@@ -16,6 +16,7 @@ namespace OpenGL {
         ~ShaderProgram();
 
         void Use();
+        unsigned int GetID() const { return m_ID; }
 
         void SetShaderVar(const std::string& name, bool value);
         void SetShaderVar(const std::string& name, int value);

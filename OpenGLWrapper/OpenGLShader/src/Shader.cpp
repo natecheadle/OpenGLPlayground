@@ -9,7 +9,7 @@
 
 #endif // !SHADER_ROOT_DIR
 
-namespace OpenGL {
+namespace OpenGLWrapper {
     Shader::Shader(const std::string& shaderFileLoc, Type type, unsigned int id)
         : m_pShaderCode(nullptr)
         , m_ShaderCode(InitializeShaderFromFile(shaderFileLoc))

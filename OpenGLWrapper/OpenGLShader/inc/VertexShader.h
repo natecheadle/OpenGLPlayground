@@ -2,7 +2,7 @@
 
 #include "Shader.h"
 
-namespace OpenGL {
+namespace OpenGLWrapper {
     class VertexShader : public Shader {
 
       public:
