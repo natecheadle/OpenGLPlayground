@@ -1,6 +1,7 @@
 #include "ShaderProgram.h"
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include <sstream>
 
@@ -58,4 +59,49 @@ namespace OpenGLWrapper {
     {
         glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);
     }
-} // namespace OpenGL
+
+    void ShaderProgram::SetShaderVar(const std::string& name, const glm::vec2& value)
+    {
+        glUniform2fv(glGetUniformLocation(m_ID, name.c_str()), 1, &value[0]);
+    }
+
+    void ShaderProgram::SetShaderVar(const std::string& name, float x, float y)
+    {
+        glUniform2f(glGetUniformLocation(m_ID, name.c_str()), x, y);
+    }
+
+    void ShaderProgram::SetShaderVar(const std::string& name, const glm::vec3& value)
+    {
+        glUniform3fv(glGetUniformLocation(m_ID, name.c_str()), 1, &value[0]);
+    }
+
+    void ShaderProgram::SetShaderVar(const std::string& name, float x, float y, float z)
+    {
+        glUniform3f(glGetUniformLocation(m_ID, name.c_str()), x, y, z);
+    }
+    
+    void ShaderProgram::SetShaderVar(const std::string& name, const glm::vec4& value)
+    {
+        glUniform4fv(glGetUniformLocation(m_ID, name.c_str()), 1, &value[0]);
+    }
+
+    void ShaderProgram::SetShaderVar(const std::string& name, float x, float y, float z, float w)
+    {
+        glUniform4f(glGetUniformLocation(m_ID, name.c_str()), x, y, z, w);
+    }
+    
+    void ShaderProgram::SetShaderVar(const std::string& name, const glm::mat2& mat)
+    {
+        glUniformMatrix2fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+    
+    void ShaderProgram::SetShaderVar(const std::string& name, const glm::mat3& mat)
+    {
+        glUniformMatrix3fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+    // ------------------------------------------------------------------------
+    void ShaderProgram::SetShaderVar(const std::string& name, const glm::mat4& mat)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+} // namespace OpenGLWrapper
