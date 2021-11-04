@@ -1,8 +1,11 @@
-#include <FragmentShader.h>
-#include <ShaderProgram.h>
-#include <Texture.h>
-#include <VertexShader.h>
-#include <Window.h>
+#include "FragmentShader.h"
+#include "ShaderProgram.h"
+#include "Texture.h"
+#include "VertexShader.h"
+#include "Window.h"
+
+#include <glad/glad.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,12 +23,12 @@ glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
 float     deltaTime   = 0.0f; // Time between current frame and last frame
 float     lastFrame   = 0.0f; // Time of last frame
 
-void processInput(GLFWwindow* window);
+void processInput(OpenGLWrapper::Window* window);
 
 int main(int argc, char* argv[])
 {
 
-    WindowWrapper::Window window(800, 600, "OpenGL Tutorial");
+    OpenGLWrapper::Window window(800, 600, "OpenGL Tutorial");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -94,7 +97,7 @@ int main(int argc, char* argv[])
     shaderProgram.SetShaderVar("projection", projection);
 
     std::function<void()> f_RenderLoop = [&]() {
-        float currentFrame = glfwGetTime();
+        float currentFrame = window.GetCurrentTime();
         deltaTime          = currentFrame - lastFrame;
         lastFrame          = currentFrame;
 
@@ -135,18 +138,15 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void processInput(GLFWwindow* window)
+void processInput(OpenGLWrapper::Window* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
     const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (window->IsKeyPressed(OpenGLWrapper::Key::W))
         cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (window->IsKeyPressed(OpenGLWrapper::Key::S))
         cameraPos -= cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (window->IsKeyPressed(OpenGLWrapper::Key::A))
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (window->IsKeyPressed(OpenGLWrapper::Key::D))
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
